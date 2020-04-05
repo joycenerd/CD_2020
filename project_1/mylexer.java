@@ -1,4 +1,4 @@
-// $ANTLR 3.5.2 mylexer.g 2020-04-05 21:31:05
+// $ANTLR 3.5.2 mylexer.g 2020-04-05 21:53:34
 
 import org.antlr.runtime.*;
 import java.util.Stack;
