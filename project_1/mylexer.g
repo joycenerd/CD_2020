@@ -83,13 +83,13 @@ R_SQUARE_BRACKET:']';
 /* Numeric Constants */
 /*-------------------*/
 
-ID:(LETTER)(LETTER | DIGIT)*;
-INT_NUM:ZERO | (POSITIVE_DIGIT)(DIGIT)*;
-FLOAT_NUM:(FLOAT_NUM1 | FLOAT_NUM2)(LETTER)*;
-DEC_NUM:('0' | ('1'..'9')(DIGIT)*)(LETTER);
+ID:(LETTER)(LETTER | DIGIT)*; 
+INT_NUM:ZERO | (POSITIVE_DIGIT)(DIGIT)*; // e.g. 1, 100, 0
+FLOAT_NUM:(FLOAT_NUM1 | FLOAT_NUM2)(LETTER)*; // e.g. 0.1f, 1.0L
+DEC_NUM:('0' | ('1'..'9')(DIGIT)*)(LETTER); // e.g. 0LL, 0uLL
 
-fragment FLOAT_NUM1:(DIGIT)+'.'(DIGIT)*;
-fragment FLOAT_NUM2: '.'(DIGIT)+;
+fragment FLOAT_NUM1:(DIGIT)+'.'(DIGIT)*;    // e.g. 1.2, 1.
+fragment FLOAT_NUM2: '.'(DIGIT)+;   // e.g. .2
 
 
 /* ----------------- */
@@ -124,4 +124,4 @@ COMMENT2 : '/*' (options{greedy=false;}: .)* '*/';
 
 /* C macro */
 
-MACRO : '#'(.)*'\n';
+MACRO : '#'(.)*'\n';    // e.g. #include, #define
