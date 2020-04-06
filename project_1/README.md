@@ -28,4 +28,4 @@ openjdk 11.0.6
 
 ## Results
 
-<img src="./image/result.png" width="300" height=auto>
+<img src="./image/result.png" width="400" height=auto>
