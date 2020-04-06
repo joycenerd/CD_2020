@@ -1,4 +1,4 @@
-// $ANTLR 3.5.2 mylexer.g 2020-04-05 21:53:34
+// $ANTLR 3.5.2 mylexer.g 2020-04-06 11:25:51
 
 import org.antlr.runtime.*;
 import java.util.Stack;
@@ -1478,10 +1478,10 @@ public class mylexer extends Lexer {
 		try {
 			int _type = DEC_NUM;
 			int _channel = DEFAULT_TOKEN_CHANNEL;
-			// mylexer.g:89:8: ( ( '0' | ( '1' .. '9' ) ( DIGIT )* ) ( LETTER ) )
-			// mylexer.g:89:9: ( '0' | ( '1' .. '9' ) ( DIGIT )* ) ( LETTER )
+			// mylexer.g:89:9: ( ( '0' | ( '1' .. '9' ) ( DIGIT )* ) ( LETTER )* )
+			// mylexer.g:89:11: ( '0' | ( '1' .. '9' ) ( DIGIT )* ) ( LETTER )*
 			{
-			// mylexer.g:89:9: ( '0' | ( '1' .. '9' ) ( DIGIT )* )
+			// mylexer.g:89:11: ( '0' | ( '1' .. '9' ) ( DIGIT )* )
 			int alt7=2;
 			int LA7_0 = input.LA(1);
 			if ( (LA7_0=='0') ) {
@@ -1499,13 +1499,13 @@ public class mylexer extends Lexer {
 
 			switch (alt7) {
 				case 1 :
-					// mylexer.g:89:10: '0'
+					// mylexer.g:89:12: '0'
 					{
 					match('0'); 
 					}
 					break;
 				case 2 :
-					// mylexer.g:89:16: ( '1' .. '9' ) ( DIGIT )*
+					// mylexer.g:89:18: ( '1' .. '9' ) ( DIGIT )*
 					{
 					if ( (input.LA(1) >= '1' && input.LA(1) <= '9') ) {
 						input.consume();
@@ -1515,7 +1515,7 @@ public class mylexer extends Lexer {
 						recover(mse);
 						throw mse;
 					}
-					// mylexer.g:89:26: ( DIGIT )*
+					// mylexer.g:89:28: ( DIGIT )*
 					loop6:
 					while (true) {
 						int alt6=2;
@@ -1549,14 +1549,35 @@ public class mylexer extends Lexer {
 
 			}
 
-			if ( (input.LA(1) >= 'A' && input.LA(1) <= 'Z')||input.LA(1)=='_'||(input.LA(1) >= 'a' && input.LA(1) <= 'z') ) {
-				input.consume();
+			// mylexer.g:89:37: ( LETTER )*
+			loop8:
+			while (true) {
+				int alt8=2;
+				int LA8_0 = input.LA(1);
+				if ( ((LA8_0 >= 'A' && LA8_0 <= 'Z')||LA8_0=='_'||(LA8_0 >= 'a' && LA8_0 <= 'z')) ) {
+					alt8=1;
+				}
+
+				switch (alt8) {
+				case 1 :
+					// mylexer.g:
+					{
+					if ( (input.LA(1) >= 'A' && input.LA(1) <= 'Z')||input.LA(1)=='_'||(input.LA(1) >= 'a' && input.LA(1) <= 'z') ) {
+						input.consume();
+					}
+					else {
+						MismatchedSetException mse = new MismatchedSetException(null,input);
+						recover(mse);
+						throw mse;
+					}
+					}
+					break;
+
+				default :
+					break loop8;
+				}
 			}
-			else {
-				MismatchedSetException mse = new MismatchedSetException(null,input);
-				recover(mse);
-				throw mse;
-			}
+
 			}
 
 			state.type = _type;
@@ -1575,40 +1596,7 @@ public class mylexer extends Lexer {
 			// mylexer.g:91:21: ( DIGIT )+ '.' ( DIGIT )*
 			{
 			// mylexer.g:91:21: ( DIGIT )+
-			int cnt8=0;
-			loop8:
-			while (true) {
-				int alt8=2;
-				int LA8_0 = input.LA(1);
-				if ( ((LA8_0 >= '0' && LA8_0 <= '9')) ) {
-					alt8=1;
-				}
-
-				switch (alt8) {
-				case 1 :
-					// mylexer.g:
-					{
-					if ( (input.LA(1) >= '0' && input.LA(1) <= '9') ) {
-						input.consume();
-					}
-					else {
-						MismatchedSetException mse = new MismatchedSetException(null,input);
-						recover(mse);
-						throw mse;
-					}
-					}
-					break;
-
-				default :
-					if ( cnt8 >= 1 ) break loop8;
-					EarlyExitException eee = new EarlyExitException(8, input);
-					throw eee;
-				}
-				cnt8++;
-			}
-
-			match('.'); 
-			// mylexer.g:91:32: ( DIGIT )*
+			int cnt9=0;
 			loop9:
 			while (true) {
 				int alt9=2;
@@ -1633,28 +1621,15 @@ public class mylexer extends Lexer {
 					break;
 
 				default :
-					break loop9;
+					if ( cnt9 >= 1 ) break loop9;
+					EarlyExitException eee = new EarlyExitException(9, input);
+					throw eee;
 				}
+				cnt9++;
 			}
 
-			}
-
-		}
-		finally {
-			// do for sure before leaving
-		}
-	}
-	// $ANTLR end "FLOAT_NUM1"
-
-	// $ANTLR start "FLOAT_NUM2"
-	public final void mFLOAT_NUM2() throws RecognitionException {
-		try {
-			// mylexer.g:92:20: ( '.' ( DIGIT )+ )
-			// mylexer.g:92:22: '.' ( DIGIT )+
-			{
 			match('.'); 
-			// mylexer.g:92:25: ( DIGIT )+
-			int cnt10=0;
+			// mylexer.g:91:32: ( DIGIT )*
 			loop10:
 			while (true) {
 				int alt10=2;
@@ -1679,11 +1654,57 @@ public class mylexer extends Lexer {
 					break;
 
 				default :
-					if ( cnt10 >= 1 ) break loop10;
-					EarlyExitException eee = new EarlyExitException(10, input);
+					break loop10;
+				}
+			}
+
+			}
+
+		}
+		finally {
+			// do for sure before leaving
+		}
+	}
+	// $ANTLR end "FLOAT_NUM1"
+
+	// $ANTLR start "FLOAT_NUM2"
+	public final void mFLOAT_NUM2() throws RecognitionException {
+		try {
+			// mylexer.g:92:20: ( '.' ( DIGIT )+ )
+			// mylexer.g:92:22: '.' ( DIGIT )+
+			{
+			match('.'); 
+			// mylexer.g:92:25: ( DIGIT )+
+			int cnt11=0;
+			loop11:
+			while (true) {
+				int alt11=2;
+				int LA11_0 = input.LA(1);
+				if ( ((LA11_0 >= '0' && LA11_0 <= '9')) ) {
+					alt11=1;
+				}
+
+				switch (alt11) {
+				case 1 :
+					// mylexer.g:
+					{
+					if ( (input.LA(1) >= '0' && input.LA(1) <= '9') ) {
+						input.consume();
+					}
+					else {
+						MismatchedSetException mse = new MismatchedSetException(null,input);
+						recover(mse);
+						throw mse;
+					}
+					}
+					break;
+
+				default :
+					if ( cnt11 >= 1 ) break loop11;
+					EarlyExitException eee = new EarlyExitException(11, input);
 					throw eee;
 				}
-				cnt10++;
+				cnt11++;
 			}
 
 			}
@@ -1705,18 +1726,18 @@ public class mylexer extends Lexer {
 			{
 			match('\"'); 
 			// mylexer.g:99:14: ( . )*
-			loop11:
+			loop12:
 			while (true) {
-				int alt11=2;
-				int LA11_0 = input.LA(1);
-				if ( (LA11_0=='\"') ) {
-					alt11=2;
+				int alt12=2;
+				int LA12_0 = input.LA(1);
+				if ( (LA12_0=='\"') ) {
+					alt12=2;
 				}
-				else if ( ((LA11_0 >= '\u0000' && LA11_0 <= '!')||(LA11_0 >= '#' && LA11_0 <= '\uFFFF')) ) {
-					alt11=1;
+				else if ( ((LA12_0 >= '\u0000' && LA12_0 <= '!')||(LA12_0 >= '#' && LA12_0 <= '\uFFFF')) ) {
+					alt12=1;
 				}
 
-				switch (alt11) {
+				switch (alt12) {
 				case 1 :
 					// mylexer.g:99:15: .
 					{
@@ -1725,7 +1746,7 @@ public class mylexer extends Lexer {
 					break;
 
 				default :
-					break loop11;
+					break loop12;
 				}
 			}
 
@@ -1818,16 +1839,16 @@ public class mylexer extends Lexer {
 			// mylexer.g:109:4: ( ' ' | '\\r' | '\\t' )+
 			{
 			// mylexer.g:109:4: ( ' ' | '\\r' | '\\t' )+
-			int cnt12=0;
-			loop12:
+			int cnt13=0;
+			loop13:
 			while (true) {
-				int alt12=2;
-				int LA12_0 = input.LA(1);
-				if ( (LA12_0=='\t'||LA12_0=='\r'||LA12_0==' ') ) {
-					alt12=1;
+				int alt13=2;
+				int LA13_0 = input.LA(1);
+				if ( (LA13_0=='\t'||LA13_0=='\r'||LA13_0==' ') ) {
+					alt13=1;
 				}
 
-				switch (alt12) {
+				switch (alt13) {
 				case 1 :
 					// mylexer.g:
 					{
@@ -1843,11 +1864,11 @@ public class mylexer extends Lexer {
 					break;
 
 				default :
-					if ( cnt12 >= 1 ) break loop12;
-					EarlyExitException eee = new EarlyExitException(12, input);
+					if ( cnt13 >= 1 ) break loop13;
+					EarlyExitException eee = new EarlyExitException(13, input);
 					throw eee;
 				}
-				cnt12++;
+				cnt13++;
 			}
 
 			skip();
@@ -1958,18 +1979,18 @@ public class mylexer extends Lexer {
 			match("//"); 
 
 			// mylexer.g:121:16: ( . )*
-			loop13:
+			loop14:
 			while (true) {
-				int alt13=2;
-				int LA13_0 = input.LA(1);
-				if ( (LA13_0=='\n') ) {
-					alt13=2;
+				int alt14=2;
+				int LA14_0 = input.LA(1);
+				if ( (LA14_0=='\n') ) {
+					alt14=2;
 				}
-				else if ( ((LA13_0 >= '\u0000' && LA13_0 <= '\t')||(LA13_0 >= '\u000B' && LA13_0 <= '\uFFFF')) ) {
-					alt13=1;
+				else if ( ((LA14_0 >= '\u0000' && LA14_0 <= '\t')||(LA14_0 >= '\u000B' && LA14_0 <= '\uFFFF')) ) {
+					alt14=1;
 				}
 
-				switch (alt13) {
+				switch (alt14) {
 				case 1 :
 					// mylexer.g:121:17: .
 					{
@@ -1978,7 +1999,7 @@ public class mylexer extends Lexer {
 					break;
 
 				default :
-					break loop13;
+					break loop14;
 				}
 			}
 
@@ -2005,25 +2026,25 @@ public class mylexer extends Lexer {
 			match("/*"); 
 
 			// mylexer.g:122:17: ( options {greedy=false; } : . )*
-			loop14:
+			loop15:
 			while (true) {
-				int alt14=2;
-				int LA14_0 = input.LA(1);
-				if ( (LA14_0=='*') ) {
-					int LA14_1 = input.LA(2);
-					if ( (LA14_1=='/') ) {
-						alt14=2;
+				int alt15=2;
+				int LA15_0 = input.LA(1);
+				if ( (LA15_0=='*') ) {
+					int LA15_1 = input.LA(2);
+					if ( (LA15_1=='/') ) {
+						alt15=2;
 					}
-					else if ( ((LA14_1 >= '\u0000' && LA14_1 <= '.')||(LA14_1 >= '0' && LA14_1 <= '\uFFFF')) ) {
-						alt14=1;
+					else if ( ((LA15_1 >= '\u0000' && LA15_1 <= '.')||(LA15_1 >= '0' && LA15_1 <= '\uFFFF')) ) {
+						alt15=1;
 					}
 
 				}
-				else if ( ((LA14_0 >= '\u0000' && LA14_0 <= ')')||(LA14_0 >= '+' && LA14_0 <= '\uFFFF')) ) {
-					alt14=1;
+				else if ( ((LA15_0 >= '\u0000' && LA15_0 <= ')')||(LA15_0 >= '+' && LA15_0 <= '\uFFFF')) ) {
+					alt15=1;
 				}
 
-				switch (alt14) {
+				switch (alt15) {
 				case 1 :
 					// mylexer.g:122:42: .
 					{
@@ -2032,7 +2053,7 @@ public class mylexer extends Lexer {
 					break;
 
 				default :
-					break loop14;
+					break loop15;
 				}
 			}
 
@@ -2059,18 +2080,18 @@ public class mylexer extends Lexer {
 			{
 			match('#'); 
 			// mylexer.g:127:12: ( . )*
-			loop15:
+			loop16:
 			while (true) {
-				int alt15=2;
-				int LA15_0 = input.LA(1);
-				if ( (LA15_0=='\n') ) {
-					alt15=2;
+				int alt16=2;
+				int LA16_0 = input.LA(1);
+				if ( (LA16_0=='\n') ) {
+					alt16=2;
 				}
-				else if ( ((LA15_0 >= '\u0000' && LA15_0 <= '\t')||(LA15_0 >= '\u000B' && LA15_0 <= '\uFFFF')) ) {
-					alt15=1;
+				else if ( ((LA16_0 >= '\u0000' && LA16_0 <= '\t')||(LA16_0 >= '\u000B' && LA16_0 <= '\uFFFF')) ) {
+					alt16=1;
 				}
 
-				switch (alt15) {
+				switch (alt16) {
 				case 1 :
 					// mylexer.g:127:13: .
 					{
@@ -2079,7 +2100,7 @@ public class mylexer extends Lexer {
 					break;
 
 				default :
-					break loop15;
+					break loop16;
 				}
 			}
 
@@ -2098,9 +2119,9 @@ public class mylexer extends Lexer {
 	@Override
 	public void mTokens() throws RecognitionException {
 		// mylexer.g:1:8: ( INT_TYPE | CHAR_TYPE | VOID_TYPE | UNSIGNED_TYPE | LONG_TYPE | CONST_TYPE | FLOAT_TYPE | DOUBLE_TYPE | IF_ | ELSE_ | FOR_ | WHILE_ | DO_ | GOTO_ | STRUCT_ | TYPEDEF_ | LE_OP | GE_OP | EQ_OP | NE_OP | ADDEQ_OP | ADD_ADD_OP | SUBEQ_OP | SUB_SUB_OP | MULEQ_OP | DIVEQ_OP | MODEQ_OP | AND_OP | OR_OP | ANDEQ_OP | OREQ_OP | XOREQ_OP | RSHIFT_OP | LSHIFT_OP | MEM_SELECT_OP | ASSIGN_OP | LESS_OP | GREATER_OP | ADD_OP | SUB_OP | MUL_OP | DIV_OP | MOD_OP | BIT_AND_OP | BIT_OR_OP | BIT_XOR_OP | DOT_OP | COMMA_OP | TERNARY_OP1 | TERNARY_OP2 | L_PARANTHESIS | R_PARANTHESIS | L_BRACKET | R_BRACKET | L_SQUARE_RBRACKET | R_SQUARE_BRACKET | ID | INT_NUM | FLOAT_NUM | DEC_NUM | LITERAL | CHARACTER | SEMICOLON | NEW_LINE | WS | COMMENT1 | COMMENT2 | MACRO )
-		int alt16=68;
-		alt16 = dfa16.predict(input);
-		switch (alt16) {
+		int alt17=68;
+		alt17 = dfa17.predict(input);
+		switch (alt17) {
 			case 1 :
 				// mylexer.g:1:10: INT_TYPE
 				{
@@ -2582,8 +2603,8 @@ public class mylexer extends Lexer {
 	}
 
 
-	protected DFA16 dfa16 = new DFA16(this);
-	static final String DFA16_eotS =
+	protected DFA17 dfa17 = new DFA17(this);
+	static final String DFA17_eotS =
 		"\1\uffff\14\43\1\75\1\100\1\102\1\uffff\1\105\1\111\1\113\1\117\1\121"+
 		"\1\124\1\127\1\131\1\132\12\uffff\2\134\6\uffff\1\43\1\140\7\43\1\151"+
 		"\5\43\43\uffff\1\134\1\157\1\uffff\6\43\1\166\1\43\1\uffff\5\43\1\uffff"+
@@ -2591,9 +2612,9 @@ public class mylexer extends Lexer {
 		"\2\43\1\uffff\1\u0089\1\uffff\1\43\1\uffff\1\u008b\1\43\1\uffff\1\u008d"+
 		"\1\uffff\2\43\1\uffff\1\43\1\uffff\1\u0091\1\uffff\1\u0092\2\43\2\uffff"+
 		"\1\u0095\1\u0096\2\uffff";
-	static final String DFA16_eofS =
+	static final String DFA17_eofS =
 		"\u0097\uffff";
-	static final String DFA16_minS =
+	static final String DFA17_minS =
 		"\1\11\1\146\1\150\1\157\1\156\1\157\1\154\1\157\1\154\1\150\1\157\1\164"+
 		"\1\171\1\74\2\75\1\uffff\1\53\1\55\1\75\1\52\1\75\1\46\2\75\1\60\12\uffff"+
 		"\2\56\6\uffff\1\164\1\60\1\141\1\156\1\151\1\163\1\156\1\157\1\162\1\60"+
@@ -2603,7 +2624,7 @@ public class mylexer extends Lexer {
 		"\1\60\1\143\1\144\1\uffff\1\60\1\uffff\1\156\1\uffff\1\60\1\145\1\uffff"+
 		"\1\60\1\uffff\1\164\1\145\1\uffff\1\145\1\uffff\1\60\1\uffff\1\60\1\146"+
 		"\1\144\2\uffff\2\60\2\uffff";
-	static final String DFA16_maxS =
+	static final String DFA17_maxS =
 		"\1\175\1\156\2\157\1\156\3\157\1\154\1\150\1\157\1\164\1\171\1\75\1\76"+
 		"\1\75\1\uffff\1\75\1\76\4\75\1\174\1\75\1\71\12\uffff\2\172\6\uffff\1"+
 		"\164\1\172\1\141\1\156\1\151\1\163\1\156\1\157\1\162\1\172\1\163\1\151"+
@@ -2613,7 +2634,7 @@ public class mylexer extends Lexer {
 		"\144\1\uffff\1\172\1\uffff\1\156\1\uffff\1\172\1\145\1\uffff\1\172\1\uffff"+
 		"\1\164\1\145\1\uffff\1\145\1\uffff\1\172\1\uffff\1\172\1\146\1\144\2\uffff"+
 		"\2\172\2\uffff";
-	static final String DFA16_acceptS =
+	static final String DFA17_acceptS =
 		"\20\uffff\1\24\11\uffff\1\60\1\61\1\62\1\63\1\64\1\65\1\66\1\67\1\70\1"+
 		"\71\2\uffff\1\75\1\76\1\77\1\100\1\101\1\104\17\uffff\1\21\1\41\1\45\1"+
 		"\22\1\42\1\46\1\23\1\44\1\25\1\26\1\47\1\27\1\30\1\43\1\50\1\31\1\51\1"+
@@ -2621,9 +2642,9 @@ public class mylexer extends Lexer {
 		"\1\57\1\73\1\72\1\74\2\uffff\1\11\10\uffff\1\15\5\uffff\1\1\6\uffff\1"+
 		"\13\6\uffff\1\2\1\uffff\1\3\1\uffff\1\5\2\uffff\1\12\1\uffff\1\16\2\uffff"+
 		"\1\6\1\uffff\1\7\1\uffff\1\14\3\uffff\1\10\1\17\2\uffff\1\20\1\4";
-	static final String DFA16_specialS =
+	static final String DFA17_specialS =
 		"\u0097\uffff}>";
-	static final String[] DFA16_transitionS = {
+	static final String[] DFA17_transitionS = {
 			"\1\52\1\51\2\uffff\1\52\22\uffff\1\52\1\20\1\46\1\53\1\uffff\1\25\1\26"+
 			"\1\47\1\35\1\36\1\23\1\21\1\32\1\22\1\31\1\24\1\44\11\45\1\34\1\50\1"+
 			"\15\1\17\1\16\1\33\1\uffff\32\43\1\41\1\uffff\1\42\1\30\1\43\1\uffff"+
@@ -2781,34 +2802,34 @@ public class mylexer extends Lexer {
 			""
 	};
 
-	static final short[] DFA16_eot = DFA.unpackEncodedString(DFA16_eotS);
-	static final short[] DFA16_eof = DFA.unpackEncodedString(DFA16_eofS);
-	static final char[] DFA16_min = DFA.unpackEncodedStringToUnsignedChars(DFA16_minS);
-	static final char[] DFA16_max = DFA.unpackEncodedStringToUnsignedChars(DFA16_maxS);
-	static final short[] DFA16_accept = DFA.unpackEncodedString(DFA16_acceptS);
-	static final short[] DFA16_special = DFA.unpackEncodedString(DFA16_specialS);
-	static final short[][] DFA16_transition;
+	static final short[] DFA17_eot = DFA.unpackEncodedString(DFA17_eotS);
+	static final short[] DFA17_eof = DFA.unpackEncodedString(DFA17_eofS);
+	static final char[] DFA17_min = DFA.unpackEncodedStringToUnsignedChars(DFA17_minS);
+	static final char[] DFA17_max = DFA.unpackEncodedStringToUnsignedChars(DFA17_maxS);
+	static final short[] DFA17_accept = DFA.unpackEncodedString(DFA17_acceptS);
+	static final short[] DFA17_special = DFA.unpackEncodedString(DFA17_specialS);
+	static final short[][] DFA17_transition;
 
 	static {
-		int numStates = DFA16_transitionS.length;
-		DFA16_transition = new short[numStates][];
+		int numStates = DFA17_transitionS.length;
+		DFA17_transition = new short[numStates][];
 		for (int i=0; i<numStates; i++) {
-			DFA16_transition[i] = DFA.unpackEncodedString(DFA16_transitionS[i]);
+			DFA17_transition[i] = DFA.unpackEncodedString(DFA17_transitionS[i]);
 		}
 	}
 
-	protected class DFA16 extends DFA {
+	protected class DFA17 extends DFA {
 
-		public DFA16(BaseRecognizer recognizer) {
+		public DFA17(BaseRecognizer recognizer) {
 			this.recognizer = recognizer;
-			this.decisionNumber = 16;
-			this.eot = DFA16_eot;
-			this.eof = DFA16_eof;
-			this.min = DFA16_min;
-			this.max = DFA16_max;
-			this.accept = DFA16_accept;
-			this.special = DFA16_special;
-			this.transition = DFA16_transition;
+			this.decisionNumber = 17;
+			this.eot = DFA17_eot;
+			this.eof = DFA17_eof;
+			this.min = DFA17_min;
+			this.max = DFA17_max;
+			this.accept = DFA17_accept;
+			this.special = DFA17_special;
+			this.transition = DFA17_transition;
 		}
 		@Override
 		public String getDescription() {
