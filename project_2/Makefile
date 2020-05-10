@@ -1,0 +1,6 @@
+all:
+	java -cp antlr-3.5.2-complete.jar org.antlr.Tool myparser.g
+	javac -cp antlr-3.5.2-complete.jar:. testParser.java
+	java -cp antlr-3.5.2-complete.jar:. testParser test3.c
+clean:
+	rm -f *.class *.tokens myparserLexer.java myparserParser.java
