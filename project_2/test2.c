@@ -9,8 +9,11 @@ int main(void) {
         if(a>5) {
             a=10;
         }
-        else {
+        else if (a<3) {
             a=-1;
+        }
+        else {
+            a=2;
         }
     }
     else {

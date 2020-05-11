@@ -98,12 +98,13 @@ statement:
     | for_statements    {if (TRACEON) System.out.println("statement: for_statements"); }
     | while_statements  {if (TRACEON) System.out.println("statement: while_statements"); }
     | print_statement   {if (TRACEON) System.out.println("statement: print_statement"); }
+    | BREAK             {if (TRACEON) System.out.println("statement: BREAK"); }
     | RETURN sub_statement ';'  { if (TRACEON) System.out.println("statement: RETURN sub_statement ';'"); }
     ;
 
 // if statement ex: if (a==b) c=1; else c=2
 ifelse_statements:
-    IF '(' arith_expression ')' block_of_statements (ELSE block_of_statements)? {if (TRACEON) System.out.println("ifelse_statements: IF '(' arith_expression ')' block_of_statements (ELSE block_of_statements)?"); };
+    IF '(' arith_expression ')' block_of_statements (ELSE_IF '(' arith_expression ')' block_of_statements)* (ELSE block_of_statements)? {if (TRACEON) System.out.println("ifelse_statements: IF '(' arith_expression ')' block_of_statements (ELSE_IF '(' arith_expression ')' block_of_statements)* (ELSE block_of_statements)?"); };
 
 // for statement ex: for(i=0;i<10;i++) a++
 for_statements:
@@ -130,9 +131,12 @@ MAIN: 'main';
 PRINTF: 'printf';
 VOID: 'void';
 IF: 'if';
+ELSEIF: 'else if';
 ELSE: 'else';
 FOR: 'for';
 WHILE: 'while';
+BREAK:'break';
+RETURN: 'return';
 
 /*----------------------*/
 /*  Compound Operators  */
@@ -172,7 +176,6 @@ COMMA_OP: ',';
 DOT_OP: '.';
 TRINARY_OP1: '?';
 TRINARY_OP2: ':';
-RETURN: 'return';
 
 Identifier:('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*;
 Integer_constant:'0'..'9'+;
