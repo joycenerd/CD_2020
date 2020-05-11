@@ -1,5 +1,5 @@
-Parser
-==
+# Parser
+
 
 ## Introduction
 
@@ -7,17 +7,16 @@ Decide the language the set of language features I want to support for the my co
 
 ## Requirements
 
-```
 antlr-3.5.2-complete.jar
 openjdk 11.0.6
-```
+
 
 ## Setup
 
  1. Locate the project folder 406410035_prj2_v1
  2. Check you have java jdk installed in your environment
- 3. Check if antlr-3.5.2-complete.jar is working in your environmnet by typing `java -jar antlr-3.5.2-complete.jar`. If not working your must download it from ANTLR website
- 4. type `make`
+ 3. Check if antlr-3.5.2-complete.jar is working in your environmnet by typing java -jar antlr-3.5.2-complete.jar. If not working your must download it from ANTLR website
+ 4. type make
  5. The testing result will show both on the screen and the files in the project folder
     * test1.c -> test1_result.txt
     * test2.c -> test2_result.txt
@@ -28,7 +27,3 @@ openjdk 11.0.6
 1. test1.c: Test basic variable declaration
 2. test2.c: Test nested if, else if, else and printf statements
 3. test3.c: Test nested for, while, if statements
-
-## Result
-
-<img src="./image/result.png" width="400">
