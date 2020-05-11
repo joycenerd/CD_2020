@@ -5,4 +5,4 @@ all:
 	java -cp antlr-3.5.2-complete.jar:. testParser test2.c | tee test2_result.txt
 	java -cp antlr-3.5.2-complete.jar:. testParser test3.c | tee test3_result.txt
 clean:
-	rm -f *.class *.tokens myparserLexer.java myparserParser.java *.txt
+	rm -f *.class *.tokens myparserLexer.java myparserParser.java *result.txt
