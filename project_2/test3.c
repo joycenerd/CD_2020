@@ -2,8 +2,8 @@
 
 int main(void) {
     int a,b=0,c;
-    for(a=0;i<10;a++) {
-        for(c=a;i<10<c++) {
+    for(a=0;a<10;a++) {
+        for(c=a;c<10;c++) {
         b++;
         }
     }
