@@ -34,4 +34,4 @@ openjdk 14.0.1
 
 ## Result
 
-<img src="./image/result.png width="600>
+<img src="./image/result.png" width=600>
