@@ -13,6 +13,8 @@ Type checking is the processes of identifying errors in a program based on expli
 antlr-3.5.2-complete.jar
 openjdk 14.0.1
 
+You should execute this program in Linux or Unix-like system
+
 ## Setup
 
  1. Locate the project folder 406410035_prj3_v1
