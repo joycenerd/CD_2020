@@ -1,7 +1,7 @@
 grammar myCompiler;
 
 options {
-    language = Java;
+   language = Java;
 }
 
 @header {
@@ -11,312 +11,602 @@ options {
 }
 
 @members {
-    List<String> DataCode = new ArrayList<String>();
-    List<String> TextCode = new ArrayList<String>();
-    
-    HashMap<String,Integer> symtab = new HashMap<String,Integer>();
-    ArrayList<String> regTextLookUp = new ArrayList<String>();
-
     boolean TRACEON = false;
-    int labelCount = 0;
 
-    /* attr_type:
-       1 => integer,
-       2 => float,
-       3 => String constant,
-       -1 => do not exist,
-       -2 => error
-     */
-     
-    public static register reg = new register(0, 9);
-    
+    // ============================================
+    // Create a symbol table.
+	// ArrayList is easy to extend to add more info. into symbol table.
+	//
+	// The structure of symbol table:
+	// <variable ID, type, memory location>
+	//    - type: the variable type   (please check "enum Type")
+	//    - memory location: the location (locals in VM) the variable will be stored at.
+    // ============================================
+    HashMap<String, ArrayList> symtab = new HashMap<String, ArrayList>();
+
+    int labelCount = 0;
+	
+	
+	// storageIndex is used to represent/index the location (locals) in VM.
+	// The first index is 0.
+	int storageIndex = 0;
+
+    // Record all assembly instructions.
+    List<String> TextCode = new ArrayList<String>();
+
+    // Type information.
+    public enum Type{
+       INT, FLOAT, CHAR;
+    }
+
+
     /*
      * Output prologue.
      */
-    void prologue(String id){
-   	   TextCode.add("\n\n/* Text section */");
-       TextCode.add("\t.section .text");
-       TextCode.add("\t.global " + id);
-       TextCode.add("\t.type " + id + ",@function");
-       TextCode.add(id + ":");
-       
-       /* Follow x86 calling convention */
-       TextCode.add("\t pushq \%rbp");
-       TextCode.add("\t movq \%rsp,\%rbp");
-       TextCode.add("\t pushq \%rbx"); //callee saved registers.
-       TextCode.add("\t pushq \%r12"); //callee saved registers.
-       TextCode.add("\t pushq \%r13"); //callee saved registers.
-       TextCode.add("\t pushq \%r14"); //callee saved registers.
-       TextCode.add("\t pushq \%r15"); //callee saved registers.
-       TextCode.add("\t subq $8,\%rsp\n"); // aligned 16-byte boundary.
+    void prologue()
+    {
+       TextCode.add(";.source");
+       TextCode.add(".class public static myResult");
+       TextCode.add(".super java/lang/Object");
+       TextCode.add(".method public static main([Ljava/lang/String;)V");
+
+       /* The size of stack and locals should be properly set. */
+       TextCode.add(".limit stack 100");
+       TextCode.add(".limit locals 100");
     }
     
+	
     /*
      * Output epilogue.
      */
-    void epilogue(){
+    void epilogue()
+    {
        /* handle epilogue */
-       
-       /* Follow x86 calling convention */
-       TextCode.add("\n\t addq $8,\%rsp");
-       TextCode.add("\t popq \%r15");
-       TextCode.add("\t popq \%r14");
-       TextCode.add("\t popq \%r13");
-       TextCode.add("\t popq \%r12");
-       TextCode.add("\t popq \%rbx");
-       TextCode.add("\t popq \%rbp");
-       TextCode.add("\t movl $0, \%eax");
-	     TextCode.add("\t ret");
+       TextCode.add("return");
+       TextCode.add(".end method");
     }
     
     
     /* Generate a new label */
-    String newLabel(){
+    String newLabel()
+    {
        labelCount ++;
        return (new String("L")) + Integer.toString(labelCount);
     } 
     
     
-    public List<String> getDataCode(){
-       return DataCode;
-    }
-    
-    public List<String> getTextCode(){
+    public List<String> getTextCode()
+    {
        return TextCode;
-    }
+    }			
 }
 
-
-program : {
-        for (int i=8; i<16; ++i) 
-            regTextLookUp.add("r" + i + "d");
-    }declarations functions;
-
-
-functions: function functions
-    |;
-				  
-function: type Identifier '(' ')' '{' {
-         /* output function prologue */
-         prologue($Identifier.text);
-      } l_declarations statements '}' {
-	     if (TRACEON)
-		     System.out.println("type Identifier () {declarations statements}");
-	    
-		 /* output function epilogue */	  
-	     epilogue();
-	  };
-
-
-/* global declaraction */
-declarations:
-	  type Identifier ';' declarations { 
-	    if (TRACEON) System.out.println("declarations: type Identifier : declarations");
-		if (symtab.containsKey($Identifier.text)) {
-		    System.out.println("Type Error: " + 
-				                $Identifier.getLine() + 
-							    ": Redeclared identifier.");
-	    } 
-        else {
-			/* Add ID and its attr_type into the symbol table. */
-			symtab.put($Identifier.text, $type.attr_type);	   
-	    }
-		
-		/* code generation */
-		switch($type.attr_type) {
-		case 1: /* Type: integer, size=> 4 bytes, alignment=> 4 byte boundary. */
-		        DataCode.add("\t.common " + $Identifier.text + ",4,4\n");
-				break;
-		default:
-		}
-	  }
-    | { if (TRACEON) System.out.println("declarations: ");}
-    ;
-
-
-l_declarations:
-    type Identifier ';' l_declarations {
-      /* Not implement */
-    }
-    |;
-
-
-type returns [int attr_type]:
-    INT   { if (TRACEON) System.out.println("type: INT");  $attr_type=1; }
-  | FLOAT { if (TRACEON) System.out.println("type: INT");  $attr_type=2; }
-    ;
-
-statements: statement statements
-    |;
-		
-statement returns [int attr_type]
-    : Identifier '=' (case_assign = arith_expression) ';'
-	  { 
-	    if (symtab.containsKey($Identifier.text)) {
-	       $attr_type = symtab.get($Identifier.text);
-	    } else {
-         /* Add codes to report and handle this error */
-           System.out.println("Type Error: " + 
-		                       $arith_expression.start.getLine() +
-                               ": " +
-		                       $Identifier.text +
- 		 	                   ": Not declared.");
-	       $attr_type = -2;
-	    }
-		  
-	    if ($attr_type != $arith_expression.attr_type) {
-           System.out.println("Type Error: " + 
-		                       $arith_expression.start.getLine() +
- 		 	                   ": Type mismatch for the two silde operands in an assignment statement.");
-		      $attr_type = -2;
-      }
-		
-		  /* code generation */
-      TextCode.add("\t movl " + "\%" + regTextLookUp.get($case_assign.reg_num) + "," + $Identifier.text + "(\%rip)");
-	  }
-    | IF '(' (case_if = arith_expression) ')' { 
-        TextCode.add("\t cmpl " + "$0, " + "\%" + regTextLookUp.get($case_if.reg_num));
-        String L = newLabel();
-        TextCode.add("\t je " + L);
-      } if_then_statements {
-        TextCode.add(L + ":");
-      }
-    | WHILE '(' Identifier ')' {
-        String L_loop_start = newLabel();
-        String L_loop_break = newLabel();
-        TextCode.add(L_loop_start + ":");
-        TextCode.add("\t cmpl " + "$0, " + $Identifier.text + "(\%rip)");
-        TextCode.add("\t je " + L_loop_break);
-      } if_then_statements {
-        TextCode.add("\t jmp " + L_loop_start);
-        TextCode.add(L_loop_break + ":");
-      }
-    | printf_stat;
-
-
-arith_expression returns [int attr_type, int reg_num, String str]:
-     a = multExpr {
-	         $attr_type = $a.attr_type;
-	         $reg_num = $a.reg_num;
-	         $str = $a.str;
-	      }
-    ( ADD_OP b = multExpr { 
-	        if ($a.attr_type != $b.attr_type) {
-			       System.out.println("Type Error: " + 
-				                 $a.start.getLine() +
-						            ": Type mismatch for the operator + in an expression.");
-		         $attr_type = -2;
-		      }
-		  
-		      /* code generation */
-          TextCode.add("\t addl " + "\%" + regTextLookUp.get($b.reg_num) + ", \%" + regTextLookUp.get($reg_num));
+program: INT MAIN '(' ')'
+        {
+           /* Output function prologue */
+           prologue();
         }
-	  | SUB_OP c = multExpr {
-          TextCode.add("\t subl " + "\%" + regTextLookUp.get($c.reg_num) + ", \%" + regTextLookUp.get($reg_num));
-      })*;
 
-	
-multExpr returns [int attr_type, int reg_num, String str]: 
-    a = signExpr { 
-	     $attr_type = $a.attr_type;
-	     $reg_num = $a.reg_num;
-	     $str = $a.str;
-	  }
-      ( '*' b = signExpr {
-          TextCode.add("\t imul \%" + regTextLookUp.get($b.reg_num) + ", \%" + regTextLookUp.get($a.reg_num));
-      }
-      | '/' c = signExpr {
-          TextCode.add("\t movl \%" + regTextLookUp.get($a.reg_num) + ", \%eax");
-          TextCode.add("\t movl \%" + regTextLookUp.get($c.reg_num) + ", \%ecx");
-          TextCode.add("\t cltd");
-          TextCode.add("\t idivl \%ecx");
-          TextCode.add("\t movl \%eax, \%" + regTextLookUp.get($a.reg_num));
-      })*;
+        '{' 
+           declarations
+           statements
+        '}'
+        {
+		   if (TRACEON)
+		      System.out.println("VOID MAIN () {declarations statements}");
+
+           /* output function epilogue */	  
+           epilogue();
+        }
+        ;
 
 
-signExpr returns [int attr_type, int reg_num, String str]: 
-    primaryExpr { 
-	     $attr_type = $primaryExpr.attr_type;
-	     $reg_num = $primaryExpr.reg_num;
-	     $str = $primaryExpr.str;
-	  }
-	| '-' primaryExpr {
-         TextCode.add("\t negl \%" + regTextLookUp.get($primaryExpr.reg_num));
-         $attr_type = $primaryExpr.attr_type;
-	     $reg_num = $primaryExpr.reg_num;
-	     $str = $primaryExpr.str;
-    };
+declarations
+    :   type Identifier
+            {
+                if (TRACEON)
+                System.out.println("declarations: type Identifier : declarations");
 
+                if (symtab.containsKey($Identifier.text)) {
+                // variable re-declared.
+                System.out.println("Type Error: " + 
+                                    $Identifier.getLine() + 
+                                    ": Redeclared identifier.");
+                System.exit(0);
+                }
+                
+                /* Add ID and its attr_type into the symbol table. */
+                ArrayList the_list = new ArrayList();
+                the_list.add($type.attr_type);
+                the_list.add(storageIndex); /*position*/
+                storageIndex = storageIndex + 1;
+                symtab.put($Identifier.text, the_list);
+            } 
+        ('=' arith_expression
+            {
+                //type checking   
+                if ($type.attr_type!=$arith_expression.attr_type) {
+                    System.out.println($type.attr_type+" "+ $arith_expression.attr_type);
 
-primaryExpr returns [int attr_type, int reg_num, String str]: 
-    Integer_constant { 
-         $attr_type = 1;
-         $str = null;
-         
-         /* code generation */
-         $reg_num = reg.get();  /* get an register */
-         TextCode.add("\t movl " + "\$" + $Integer_constant.text + ", \%" + regTextLookUp.get($reg_num)); 
-      }
-    | STRING_LITERAL { $attr_type = 3; $str = $STRING_LITERAL.text; }
-    | Identifier {
-         $attr_type = symtab.get($Identifier.text);
-         $str = null;
-         
-         /* code generation */
-         $reg_num = reg.get(); /* get an register */
-         TextCode.add("\t movl " + $Identifier.text + "(\%rip), \%" + regTextLookUp.get($reg_num));
-      }
-	  | '(' arith_expression ')' { $attr_type = $arith_expression.attr_type; };
+                    System.out.println("assign_stmt:Type error!\n");
+                    System.exit(0);
+                }
+                
+                // issue store insruction:
+                // => store the top element of the operand stack into the locals.
 
-	
-if_then_statements: 
-    statement
- | '{' statements '}';
-
-printf_stat:
-    'printf' '(' a=STRING_LITERAL ',' arith_expression  ')' ';' {
-        String LC = newLabel();
-        DataCode.add(LC + ":");
-        DataCode.add("\t.string " + $a.text);
-        TextCode.add("\t movl \%" + regTextLookUp.get($arith_expression.reg_num) + ", \%esi");
-        TextCode.add("\t leaq " + LC + "(\%rip), \%rdi");
-        TextCode.add("\t movl $0, \%eax");
-        TextCode.add("\t call printf@PLT");
-    } 
-    |'printf' '(' b=STRING_LITERAL ')' ';' {
-        String LC = newLabel();
-        DataCode.add(LC + ":");
-        DataCode.add("\t.string " + $b.text);
-        TextCode.add("\t leaq " + LC + "(\%rip), \%rdi");
-        TextCode.add("\t movl $0, \%eax");
-        TextCode.add("\t call printf@PLT");
-    }
+                switch ($type.attr_type) {
+                case INT:
+                    TextCode.add("  istore " + (storageIndex - 1));
+                    break;
+                case FLOAT:
+                    TextCode.add("  fstore " + (storageIndex - 1));
+                    break;
+                }
+            }
+        )? ';' declarations
+    | 
+        {
+            if (TRACEON)
+            System.out.println("declarations: ");
+        }
     ;
 
-/* description of the tokens */
-INT:'int';
-VOID: 'void';
-FLOAT:'float';
-IF: 'if';
-WHILE: 'while';
 
-ADD_OP  : '+';
-SUB_OP  : '-';
+type
+returns [Type attr_type]
+    : INT { if (TRACEON) System.out.println("type: INT"); attr_type=Type.INT; }
+    | FLOAT {if (TRACEON) System.out.println("type: FLOAT"); attr_type=Type.FLOAT; }
+	;
+
+statements
+    :statement statements
+    |
+    ;
+
+statement
+    : assign_stmt { TextCode.add($assign_stmt.code); } ';'
+    | if_stmt
+    | func_no_return_stmt ';'
+    | for_stmt
+    | while_stmt
+    | printf
+    | RETURN Integer_constant ';'
+    ;
+
+printf
+@init {String str;int ind_prev;int len;}
+    :   'printf' '(' STRING_LITERAL {  ind_prev=1; str=$STRING_LITERAL.text;len=str.length();}
+         (',' {TextCode.add("  getstatic java/lang/System/out Ljava/io/PrintStream;");} 
+        a=arith_expression 
+            {
+                //type checking
+                Type expType;
+
+                //find \%
+                int ind=str.indexOf('\%',ind_prev);
+
+                //print String
+                if(ind-ind_prev>0 && ind<len-1 ){
+                    String s=str.substring(ind_prev,ind);
+                    TextCode.add("  getstatic java/lang/System/out Ljava/io/PrintStream;");
+                    TextCode.add("  ldc \""+s+"\"");
+                    TextCode.add("  invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V");
+                }
+
+                //print variable
+                ind_prev=ind+2;
+                switch(str.charAt(ind+1)){
+                    case 'd':
+                        if($a.attr_type!=Type.INT){
+                            System.out.println("printf:Type error!\n");
+                            System.exit(0);
+                        }
+                        TextCode.add("  invokevirtual java/io/PrintStream/print(I)V");
+                        break;
+                    case 'f':
+                        if($a.attr_type!=Type.FLOAT){
+                            System.out.println("printf:Type error!\n");
+                            System.exit(0);
+                        }
+                        TextCode.add("  invokevirtual java/io/PrintStream/print(F)V");
+                        break;
+                }
+            } 
+     )* ')' ';'
+     {
+        if(ind_prev<(len-1)){
+            String s=str.substring(ind_prev,len-1);
+            TextCode.add("  getstatic java/lang/System/out Ljava/io/PrintStream;");
+            TextCode.add("  ldc \""+s+"\"");
+            TextCode.add("  invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V");
+        }
+     }
+    ;
+
+
+for_stmt
+@init{ String next; String loopLable;}
+    :   { next=newLabel(); loopLable=newLabel();}
+        FOR '(' a=assign_stmt {TextCode.add($a.code);} ';' { TextCode.add(loopLable+":");}
+        cond_expression[next] ';'
+        b=assign_stmt')'
+        block_stmt
+        { TextCode.add($b.code); TextCode.add("  goto "+loopLable); TextCode.add(next+":");}
+    ;
+
+while_stmt
+@init{ String next; String loopLable;}
+:   { next=newLabel(); loopLable=newLabel(); TextCode.add(loopLable+":");}
+        'while' '(' cond_expression[next] ')' block_stmt
+        { TextCode.add("  goto "+loopLable); TextCode.add(next+":");}
+    ;
+		
+
+if_stmt
+@init{ String next; String elseLable;}
+    :   { next=newLabel(); elseLable=newLabel(); }
+        IF '(' cond_expression[elseLable] ')' 
+        block_stmt { TextCode.add("  goto "+next);TextCode.add(elseLable+":");}
+        (ELSE block_stmt)? 
+        { TextCode.add(next+":"); } 
+    ;
+
+		  
+block_stmt
+    : '{' statements '}' 
+	;
+
+
+assign_stmt
+returns [String code]
+:   Identifier '=' arith_expression
+        {
+
+            Type the_type;
+            int the_mem;
+            
+            // get the ID's location and type from symtab.			   
+            the_type = (Type) symtab.get($Identifier.text).get(0);
+            the_mem = (int) symtab.get($Identifier.text).get(1);
+            
+            if (the_type!=$arith_expression.attr_type) {
+                System.out.println(the_type+" "+ $arith_expression.attr_type);
+
+                System.out.println("assign_stmt:Type error!\n");
+                System.exit(0);
+            }
+            // issue store insruction:
+            // => store the top element of the operand stack into the locals.
+            switch (the_type) {
+            case INT:
+                code="  istore " + the_mem;
+                break;
+            case FLOAT:
+                code="  fstore " + the_mem;
+                break;
+            }
+            
+        }
+    | '++' Identifier
+        {
+            // get type information from symtab.
+            Type the_type = (Type) symtab.get($Identifier.text).get(0);
+            int the_mem = (int) symtab.get($Identifier.text).get(1);
+
+            code="  ldc 1";
+            switch (the_type) {
+            case INT: 
+                        // load the variable into the operand stack.
+                        code+="\n  iload " + symtab.get($Identifier.text).get(1);
+                        code+="\n  iadd";
+                        break;
+            case FLOAT:
+                        code+="\n  fload " + symtab.get($Identifier.text).get(1);
+                        code+="\n  fadd";
+                        break;
+            }
+            code+="\n  istore " + the_mem;
+        }
+    | '--' Identifier
+        {
+            // get type information from symtab.
+            Type the_type = (Type) symtab.get($Identifier.text).get(0);
+            int the_mem = (int) symtab.get($Identifier.text).get(1);
+
+            switch (the_type) {
+            case INT: 
+                        // load the variable into the operand stack.
+                        code="  iload " + symtab.get($Identifier.text).get(1);
+                        code+="\n  ldc 1";
+                        code+="\n  isub";
+                        break;
+            case FLOAT:
+                        code="  fload " + symtab.get($Identifier.text).get(1);
+                        code+="\n  ldc 1";
+                        code+="\n  fsub";
+                        break;
+            }
+            code+="\n  istore " + the_mem;
+        }
+    ;
+
+		   
+func_no_return_stmt: Identifier '(' argument ')'
+                   ;
+
+
+argument: arg (',' arg)*
+        ;
+
+arg: arith_expression
+   | STRING_LITERAL
+   ;
+		   
+cond_expression
+[String label]
+returns [boolean truth]
+    : a=arith_expression
+        {
+            if ($a.attr_type.ordinal() != 0)
+                truth = true;
+            else
+                truth = false;
+        }
+    ( RelationOP b=arith_expression
+        { 
+            if($a.attr_type!=$b.attr_type){
+                System.out.println("cond_expression:Type error!\n");
+                System.exit(0);
+            }
+            
+            
+            if($a.attr_type==Type.INT){
+                if($RelationOP.text.equals(">")){
+                    TextCode.add("  if_icmple "+label);
+                }else if($RelationOP.text.equals(">=")){
+                    TextCode.add("  if_icmplt "+label);
+                }else if($RelationOP.text.equals("<")){
+                    TextCode.add("  if_icmpge "+label);
+                }else if($RelationOP.text.equals("<=")){
+                    TextCode.add("  if_icmpgt "+label);
+                }else if($RelationOP.text.equals("==")){
+                    TextCode.add("  if_icmpne "+label);
+                }else if($RelationOP.text.equals("!=")){
+                    TextCode.add("  if_icmpeq "+label);
+                }
+            }else if($a.attr_type==Type.FLOAT){
+                TextCode.add("  fcmpl");
+                if($RelationOP.text.equals(">")){
+                    TextCode.add("  ifle "+label);
+                }else if($RelationOP.text.equals(">=")){
+                    TextCode.add("  iflt "+label);
+                }else if($RelationOP.text.equals("<")){
+                    TextCode.add("  ifge "+label);
+                }else if($RelationOP.text.equals("<=")){
+                    TextCode.add("  ifgt "+label);
+                }else if($RelationOP.text.equals("==")){
+                    TextCode.add("  ifne "+label);
+                }else if($RelationOP.text.equals("!=")){
+                    TextCode.add("  ifeq "+label);
+                }
+            }
+
+        }
+    )*
+    ;
+
+			   
+arith_expression
+returns [Type attr_type]
+    : a=addExpr { $attr_type = $a.attr_type; }
+        ( '<<' b=addExpr
+            {
+                // We need to do type checking first.
+                // ...
+                if ($attr_type != $b.attr_type) {
+                    System.out.println("＋:Type error!\n");
+                    System.exit(0);
+                }
+                
+                // code generation.
+                if (($attr_type == Type.INT) && ($b.attr_type == Type.INT)){
+                    TextCode.add("  ldc 2");
+                    TextCode.add("  imul");
+                    TextCode.add("  imul");
+                }
+                else if(($attr_type == Type.FLOAT) && ($b.attr_type == Type.FLOAT)){
+                    TextCode.add("  ldc 2");
+                    TextCode.add("  fmul");
+                    TextCode.add("  fdiv");
+                }
+            
+            }
+        | '>>' c=addExpr
+        {
+                // We need to do type checking first.
+                if ($attr_type != $c.attr_type) {
+                    System.out.println("-:Type error!\n");
+                    System.exit(0);
+                }
+                
+                // code generation.
+                if (($attr_type == Type.INT) && ($c.attr_type == Type.INT))
+                    TextCode.add("  isub");
+                else if(($attr_type == Type.FLOAT) && ($c.attr_type == Type.FLOAT))
+                    TextCode.add("  fsub");
+            
+            }
+        )*
+    ;
+
+addExpr
+returns [Type attr_type]
+    : a=multExpr { $attr_type = $a.attr_type; }
+        ( '+' b=multExpr
+            {
+                // We need to do type checking first.
+                // ...
+                if ($attr_type != $b.attr_type) {
+                    System.out.println("＋:Type error!\n");
+                    System.exit(0);
+                }
+                
+                // code generation.
+                if (($attr_type == Type.INT) && ($b.attr_type == Type.INT))
+                    TextCode.add("  iadd");
+                else if(($attr_type == Type.FLOAT) && ($b.attr_type == Type.FLOAT))
+                    TextCode.add("  fadd");
+            
+            }
+        | '-' c=multExpr
+        {
+                // We need to do type checking first.
+                if ($attr_type != $c.attr_type) {
+                    System.out.println("-:Type error!\n");
+                    System.exit(0);
+                }
+                
+                // code generation.
+                if (($attr_type == Type.INT) && ($c.attr_type == Type.INT))
+                    TextCode.add("  isub");
+                else if(($attr_type == Type.FLOAT) && ($c.attr_type == Type.FLOAT))
+                    TextCode.add("  fsub");
+            
+            }
+        )*
+    ;
+
+multExpr
+returns [Type attr_type]
+    : a=signExpr { $attr_type=$a.attr_type; }
+    ( '*' b=signExpr
+        {
+            if ($attr_type != $b.attr_type) {
+                System.out.println("*:Type error!\n");
+                System.exit(0);
+            }
+            if (($attr_type == Type.INT) && ($b.attr_type == Type.INT))
+                TextCode.add("  imul");
+            else if(($attr_type == Type.FLOAT) && ($b.attr_type == Type.FLOAT))
+                TextCode.add("  fmul");
+        }
+    | '/' c=signExpr
+        {
+            if ($attr_type != $c.attr_type) {
+                System.out.println("/:Type error!\n");
+                System.exit(0);
+            }
+            if (($attr_type == Type.INT) && ($c.attr_type == Type.INT))
+                TextCode.add("  idiv");
+            else if(($attr_type == Type.FLOAT) && ($c.attr_type == Type.FLOAT))
+                TextCode.add("  fdiv");
+        }
+    |   '\%' c=signExpr
+        {
+            if ($attr_type != $c.attr_type) {
+                System.out.println("/:Type error!\n");
+                System.exit(0);
+            }
+            if (($attr_type == Type.INT) && ($c.attr_type == Type.INT))
+                TextCode.add("  irem");
+            else if(($attr_type == Type.FLOAT) && ($c.attr_type == Type.FLOAT))
+                TextCode.add("  frem");
+        }
+    )*
+    ;
+
+signExpr
+returns [Type attr_type]
+    : a=primaryExpr { $attr_type=$a.attr_type; } 
+    | '-' b=primaryExpr
+        {
+            if ($attr_type != $b.attr_type) {
+                System.out.println("sign:Type error!\n");
+                System.exit(0);
+            }
+            if (($attr_type == Type.INT) && ($b.attr_type == Type.INT))
+                TextCode.add("  ineg");
+            else if(($attr_type == Type.FLOAT) && ($b.attr_type == Type.FLOAT))
+                TextCode.add("  fneg");
+        }
+    ;
+		  
+primaryExpr
+returns [Type attr_type] 
+    : Floating_point_constant
+        {
+            $attr_type = Type.FLOAT;
+            TextCode.add("  ldc " + $Floating_point_constant.text);
+        }
+    | Integer_constant
+        {
+            $attr_type = Type.INT;
+            TextCode.add("  ldc " + $Integer_constant.text);
+        }
+    
+    | Identifier
+        {
+            // get type information from symtab.
+            $attr_type = (Type) symtab.get($Identifier.text).get(0);
+            switch ($attr_type) {
+            case INT: 
+                        // load the variable into the operand stack.
+                        TextCode.add("  iload " + symtab.get($Identifier.text).get(1));
+                        break;
+            case FLOAT:
+                        TextCode.add("  fload " + symtab.get($Identifier.text).get(1));
+                        break;
+            
+            }
+        }
+    | '&' Identifier
+        {
+            $attr_type = (Type) symtab.get($Identifier.text).get(0);
+            TextCode.add("  ldc " + symtab.get($Identifier.text).get(1));
+        }
+    | '(' arith_expression ')'
+        {
+            $attr_type = (Type)$arith_expression.attr_type;
+        }
+    ;
+
+		   
+/* description of the tokens */
+COMMENT
+    :   '/*' ( options {greedy=false;} : . )* '*/' {$channel=HIDDEN;}
+    ;
+LINE_COMMENT
+    : '//' ~('\n'|'\r')* '\r'? '\n' {$channel=HIDDEN;}
+   	;
+
+
+FLOAT:'float';
+INT:'int';
+CHAR: 'char';
+
+MAIN: 'main';
+VOID: 'void';
+IF: 'if';
+ELSE: 'else';
+FOR: 'for';
+RETURN: 'return';
+
+RelationOP: '>' |'>=' | '<' | '<=' | '==' | '!=';
 
 Identifier:('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*;
-Integer_constant:'0'..'9'+;
 Floating_point_constant:'0'..'9'+ '.' '0'..'9'+;
+Integer_constant:'0'..'9'+;
 
 STRING_LITERAL
     :  '"' ( EscapeSequence | ~('\\'|'"') )* '"'
     ;
 
+WS:( ' ' | '\t' | '\r' | '\n' ) {$channel=HIDDEN;};
+
+
+
 fragment
 EscapeSequence
     :   '\\' ('b'|'t'|'n'|'f'|'r'|'\"'|'\''|'\\')
     ;
-
-
-WS:( ' ' | '\t' | '\r' | '\n' ) {$channel=HIDDEN;};
-COMMENT:'/*' .* '*/' {$channel=HIDDEN;} | '//' .* '\n' {$channel=HIDDEN;};
-MACRO : '#'(.)*'\n'{$channel=HIDDEN;};

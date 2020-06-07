@@ -12,19 +12,10 @@ public class myCompiler_test {
       myCompilerParser parser = new myCompilerParser(tokens);
       parser.program();
       
-      /* Output data section */
-	  List<String> data_code = parser.getDataCode();
+      /* Output text section */
+      List<String> text_code = parser.getTextCode();
 	  
-	  System.out.println("/* Data section */");
-	  System.out.println("\t.section .data\n");
-	  for(int i=0; i < data_code.size(); i++)
-	    	System.out.println(data_code.get(i));
-
-	  
-	  /* Output text section */
-	  List<String> text_code = parser.getTextCode();
-	  
-	  for(int i=0; i < text_code.size(); i++)
-	    	System.out.println(text_code.get(i));
-	}
+      for (int i=0; i < text_code.size(); i++)
+         System.out.println(text_code.get(i));
+      }
 }

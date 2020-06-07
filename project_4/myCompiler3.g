@@ -81,7 +81,7 @@ options {
     }			
 }
 
-program: VOID MAIN '(' ')'
+program: INT MAIN '(' ')'
         {
            /* Output function prologue */
            prologue();
