@@ -232,4 +232,39 @@ signExpr returns [int attr_type, int reg_num, String str]:
 	    $str = $primaryExpr.str; 
     };
 
+// expressions ex: 1 1.5 a (a==b)	  
+primaryExpr returns [int attr_type, int reg_num, String str] : 
+    Integer_constant { 
+        if (TRACEON) System.out.println("primaryExpr: Integer_constant");
+        $attr_type = -1;
+        $str = null;
+            
+        // code generation
+        $reg_num = reg.get();  // get an register
+        TextCode.add("\t movl " + "\$" + $Integer_constant.text + ", \%" + regTextLookUp.get($reg_num)); 
+    }
+  | String_Literal {
+        $attr_type =  3;
+        $str =  $String_Literal.text;
+    }
+  | Identifier {
+       if (TRACEON) System.out.println("primaryExpr: Identifier");
+       if (symtab.containsKey($Identifier.text)) {
+            $attr_type = symtab.get($Identifier.text);
+            $str = null;
+         
+            /* code generation */
+            $reg_num = reg.get(); /* get an register */
+            TextCode.add("\t movl " + $Identifier.text + "(\%rip), \%" + regTextLookUp.get($reg_num));
+	    } 
+        else {
+            System.out.println("Type Error: line: " + $Identifier.getLine() + ": " + $Identifier.text + ": not declared.");
+            $attr_type = 0;
+        }
+    }
+  | '(' arith_expression ')' { 
+        if (TRACEON) System.out.println("primaryExpr: '(' arith_expression ')'");
+        $attr_type = $arith_expression.attr_type; 
+    };
+
 
