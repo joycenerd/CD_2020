@@ -101,6 +101,7 @@ program: INT MAIN '(' ')'
         ;
 
 
+// int a = 0; float b = 3.1415
 declarations
     :   type Identifier
             {
@@ -174,6 +175,7 @@ statement
     | RETURN Integer_constant ';'
     ;
 
+// printf("this is an integer: %d\n",a); printf("this is pi: %f\n", b);
 printf
 @init {String str;int ind_prev;int len;}
     :   'printf' '(' STRING_LITERAL {  ind_prev=1; str=$STRING_LITERAL.text;len=str.length();}
@@ -225,6 +227,7 @@ printf
     ;
 
 
+// for(i=0;i<10;i++)
 for_stmt
 @init{ String next; String loopLable;}
     :   { next=newLabel(); loopLable=newLabel();}
@@ -235,6 +238,7 @@ for_stmt
         { TextCode.add($b.code); TextCode.add("  goto "+loopLable); TextCode.add(next+":");}
     ;
 
+// while(i<10)
 while_stmt
 @init{ String next; String loopLable;}
 :   { next=newLabel(); loopLable=newLabel(); TextCode.add(loopLable+":");}
@@ -243,6 +247,7 @@ while_stmt
     ;
 		
 
+// if (a>0) statemens else
 if_stmt
 @init{ String next; String elseLable;}
     :   { next=newLabel(); elseLable=newLabel(); }
@@ -252,12 +257,14 @@ if_stmt
         { TextCode.add(next+":"); } 
     ;
 
-		  
+
+// multiple statements		  
 block_stmt
     : '{' statements '}' 
 	;
 
 
+// a=b+c a++ a-- ++a --a
 assign_stmt
 returns [String code]
 :   Identifier '=' arith_expression
@@ -309,6 +316,47 @@ returns [String code]
             code+="\n  istore " + the_mem;
         }
     | '--' Identifier
+        {
+            // get type information from symtab.
+            Type the_type = (Type) symtab.get($Identifier.text).get(0);
+            int the_mem = (int) symtab.get($Identifier.text).get(1);
+
+            switch (the_type) {
+            case INT: 
+                        // load the variable into the operand stack.
+                        code="  iload " + symtab.get($Identifier.text).get(1);
+                        code+="\n  ldc 1";
+                        code+="\n  isub";
+                        break;
+            case FLOAT:
+                        code="  fload " + symtab.get($Identifier.text).get(1);
+                        code+="\n  ldc 1";
+                        code+="\n  fsub";
+                        break;
+            }
+            code+="\n  istore " + the_mem;
+        }
+    | Identifier '++'
+        {
+            // get type information from symtab.
+            Type the_type = (Type) symtab.get($Identifier.text).get(0);
+            int the_mem = (int) symtab.get($Identifier.text).get(1);
+
+            code="  ldc 1";
+            switch (the_type) {
+            case INT: 
+                        // load the variable into the operand stack.
+                        code+="\n  iload " + symtab.get($Identifier.text).get(1);
+                        code+="\n  iadd";
+                        break;
+            case FLOAT:
+                        code+="\n  fload " + symtab.get($Identifier.text).get(1);
+                        code+="\n  fadd";
+                        break;
+            }
+            code+="\n  istore " + the_mem;
+        }
+    |  Identifier '--'
         {
             // get type information from symtab.
             Type the_type = (Type) symtab.get($Identifier.text).get(0);
