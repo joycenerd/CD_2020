@@ -390,7 +390,8 @@ argument: arg (',' arg)*
 arg: arith_expression
    | STRING_LITERAL
    ;
-		   
+
+// a>b a>=b a<b a<=b a==b a!=b	   
 cond_expression
 [String label]
 returns [boolean truth]
@@ -444,7 +445,8 @@ returns [boolean truth]
     )*
     ;
 
-			   
+
+// a>>1: a right shift one bit (multiple) a<<1: a left shift one bit (division)		   
 arith_expression
 returns [Type attr_type]
     : a=addExpr { $attr_type = $a.attr_type; }
