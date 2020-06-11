@@ -35,6 +35,6 @@ x86 version
 1. Locate to X86: `cd x86`
 4. type `make`
 5. x86 .s files will be saved in "x86" folder, and the execution result from test_.s will shown on screen since x86 assembly code is executable on Linux system
-    * test1.c: comments and arithmetic computation -> test1.j
-    * test2.c: variable and if else statement -> test2.j
-    * test3.c: if and while loop -> test3.j
+    * test1.c: comments and arithmetic computation -> test1.s
+    * test2.c: variable and if else statement -> test2.s
+    * test3.c: if and while loop -> test3.s
