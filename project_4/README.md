@@ -13,11 +13,11 @@ antlr-3.5.2-complete.jar
 openjdk 11.0.7
 ```
 
-You should ececute this program in Linux or Unix-like system
+You should execute this program in Linux or Unix-like system
 
 ## Setup
 
-1. Locate the project folder 406410035_prj3_v1
+1. Locate the project folder 406410035_prj4_v1
 2. Check you have the required java jdk installed in your environment
 3. Check if antlr-3.5.2-complete.jar is working in your environmnet by typing `java -jar antlr-3.5.2-complete.jar`. If not working you must download it from ANTLR website and put it in the project folder
 
