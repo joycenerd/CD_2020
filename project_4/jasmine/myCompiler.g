@@ -236,14 +236,16 @@ returns [Type attr_type]
                 
                 // code generation.
                 if (($attr_type == Type.INT) && ($b.attr_type == Type.INT)){
-                    TextCode.add("  ldc 2");
-                    TextCode.add("  imul");
-                    TextCode.add("  imul");
+                    //TextCode.add("  ldc 2");
+                    //TextCode.add("  imul");
+                    //TextCode.add("  imul");
+                    TextCode.add("  ishl");
                 }
                 else if(($attr_type == Type.FLOAT) && ($b.attr_type == Type.FLOAT)){
-                    TextCode.add("  ldc 2");
-                    TextCode.add("  fmul");
-                    TextCode.add("  fdiv");
+                    //TextCode.add("  ldc 2");
+                    //TextCode.add("  fmul");
+                    //TextCode.add("  fdiv");
+                    TextCode.add("  fshl");
                 }
             
             }
@@ -257,9 +259,11 @@ returns [Type attr_type]
                 
                 // code generation.
                 if (($attr_type == Type.INT) && ($c.attr_type == Type.INT))
-                    TextCode.add("  isub");
+                    // TextCode.add("  isub");
+                    TextCode.add(" ishr");
                 else if(($attr_type == Type.FLOAT) && ($c.attr_type == Type.FLOAT))
-                    TextCode.add("  fsub");
+                    // TextCode.add("  fsub");
+                    TextCode.add("  fshr");
             
             }
         )*

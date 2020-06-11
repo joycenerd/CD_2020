@@ -14,5 +14,7 @@ int main()
    a = 0;
    b = a + 100;
    printf("Hello World!\n");
+   printf("Bogo!\n");
+   printf("Fork!\n");
    return 0;
 }
