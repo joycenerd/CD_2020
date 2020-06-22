@@ -1,4 +1,4 @@
-int main() {
+void main() {
     int a=1;
     int b=2;
     int c=3;
@@ -14,5 +14,4 @@ int main() {
 
     printf("f: %d\n",f);
     printf("v: %f\n",v);
-    return 0;
 }

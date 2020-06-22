@@ -81,7 +81,7 @@ options {
     }			
 }
 
-program: INT MAIN '(' ')'
+program: VOID MAIN '(' ')'
         {
            /* Output function prologue */
            prologue();
@@ -413,7 +413,6 @@ statement
     | for_stmt
     | while_stmt
     | printf
-    | RETURN Integer_constant ';'
     ;
 
 

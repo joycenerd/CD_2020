@@ -1,4 +1,4 @@
-int main() {
+void main() {
     int a;
     int b;
     int c;
@@ -13,5 +13,4 @@ int main() {
             --a;
         }
     }
-    return 0;
 }

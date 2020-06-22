@@ -1,4 +1,4 @@
-int main() {
+void main() {
     int a=1;
     int b;
     if(a<0) {
@@ -16,5 +16,4 @@ int main() {
     }
     printf("a: %d\n",a);
     printf("a: %d\n",b);
-    return 0;
 }

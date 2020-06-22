@@ -1,4 +1,4 @@
-int main()
+void main()
 {
    /* This is a multiline comment
    * This is a multiline comment
@@ -16,5 +16,4 @@ int main()
    printf("Hello World!\n");
    printf("Bogo!\n");
    printf("Fork!\n");
-   return 0;
 }
